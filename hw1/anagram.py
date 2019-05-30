@@ -46,14 +46,14 @@ except ImportError:
 
 def anagram(dic):
     """
-    char: ソートした入力された文字
+    sort_char: ソートした入力された文字
     origin_char: そのままの入力された文字
     word: 入力された文字に含まれる単語リスト
     point: 得点
     best: matchのうちbestな単語
     best_point: bestの得点
     """
-    char = ''
+    sort_char = ''
     origin_char = ''
     word = []
     best = ''
@@ -66,11 +66,11 @@ def anagram(dic):
         # asciiコードを取得
         key = ord(getch())
         # asciiコードから文字へ
-        char += chr(key)
+        sort_char += chr(key)
         origin_char += chr(key)
 
         print('>>>' + origin_char + '\n')
-        char = ''.join(sorted(char))
+        sort_char = ''.join(sorted(sort_char))
 
         if key == 3:
             break
@@ -78,7 +78,7 @@ def anagram(dic):
             word = []
             for d in dic:
                 # d: 'abracadabra aaaaabbcdrr'とか
-                c = char
+                c = sort_char
                 match = True
                 for match_char in list(d[1]):
                     if c.find(match_char) != -1:
