@@ -27,7 +27,7 @@ def make_word(a):
     return a_list """
 
 
-# 1文字づつ入力を受け取る
+# 1文字ずつ入力を受け取る
 try:
     from msvcrt import getch
 except ImportError:
@@ -48,14 +48,14 @@ def anagram(dic):
     """
     char: ソートした入力された文字
     origin_char: そのままの入力された文字
-    word: 入力された文字に含まれる単語
+    word: 入力された文字に含まれる単語リスト
     point: 得点
     best: matchのうちbestな単語
     best_point: bestの得点
     """
     char = ''
     origin_char = ''
-    word = ''
+    word = []
     best = ''
     point = 0
     best_point = 0
@@ -67,16 +67,15 @@ def anagram(dic):
         key = ord(getch())
         # asciiコードから文字へ
         char += chr(key)
-
         origin_char += chr(key)
+
         print('>>>' + origin_char + '\n')
-        
         char = ''.join(sorted(char))
 
         if key == 3:
             break
         else:
-            word = ''
+            word = []
             for d in dic:
                 # d: 'abracadabra aaaaabbcdrr'とか
                 c = char
@@ -91,7 +90,7 @@ def anagram(dic):
 
                 if match == True:
                     # matchしたら
-                    word += d[0] + ' '
+                    word.append(d[0])
                     point = len(d[1])
 
                     for letter in d[1]:
