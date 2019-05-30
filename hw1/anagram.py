@@ -50,7 +50,7 @@ def anagram(dic):
     origin_char: そのままの入力された文字
     word: 入力された文字に含まれる単語リスト
     point: 得点
-    best: matchのうちbestな単語
+    best: wordの中でbestな単語
     best_point: bestの得点
     """
     sort_char = ''
@@ -61,17 +61,17 @@ def anagram(dic):
     best_point = 0
 
     while True:
-        print(word)
-        print('Best: ' + best)
+        print('' + word)
+        print('The best word is: ' + best)
         # asciiコードを取得
         key = ord(getch())
         # asciiコードから文字へ
         sort_char += chr(key)
         origin_char += chr(key)
-
-        print('>>>' + origin_char + '\n')
         sort_char = ''.join(sorted(sort_char))
-
+        
+        print('>>>' + origin_char + '\n')
+        
         if key == 3:
             break
         else:
