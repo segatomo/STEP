@@ -61,8 +61,11 @@ def anagram(dic):
     best_point = 0
 
     while True:
-        print('' + word)
-        print('The best word is: ' + best)
+        
+        print('>>>' + origin_char + '\n')
+
+        print(word)
+        print('The best word is: ' + best + '\n')
         # asciiコードを取得
         key = ord(getch())
         # asciiコードから文字へ
@@ -70,10 +73,18 @@ def anagram(dic):
         origin_char += chr(key)
         sort_char = ''.join(sorted(sort_char))
         
-        print('>>>' + origin_char + '\n')
-        
+            
         if key == 3:
+            # Ctrl-C で終了
             break
+        elif key == 14:
+            # Ctrl-N でリセット
+            sort_char = ''
+            origin_char = ''
+            word = []
+            best = ''
+            point = 0
+            best_point = 0
         else:
             word = []
             for d in dic:
