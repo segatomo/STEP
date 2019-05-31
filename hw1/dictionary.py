@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# 辞書を読み込み大文字を小文字に変換、元の文字列とソートした文字列辞書を作る
+# 辞書を読み込み大文字を小文字に変換、元の文字列とソートした文字列の辞書を作る
 dic = {}
 with open('dictionary.words.txt', 'r') as f:
     for line in f:
@@ -11,15 +11,10 @@ with open('dictionary.words.txt', 'r') as f:
 dic_sorted = sorted(dic.items(), key=lambda x:x[1])
 
 # 書き込み
-f = open('newdictionary.txt', 'w')
-for i in range(len(dic_sorted)):
-    for j in range(len(dic_sorted[i])):
-        if j == len(dic_sorted[i])-1:
-            f.write(str(dic_sorted[i][j]))
-        else:
-            f.write(str(dic_sorted[i][j]) + ' ')
-    if i != len(dic_sorted)-1:
-        f.write('\n')
+with open('newdictionary.txt', 'w') as f:
+    for origin, sort in dic_sorted:
+        words = origin + ' ' + sort
+        f.write(words+'\n')
 f.close()
 
 
