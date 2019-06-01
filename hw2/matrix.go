@@ -39,6 +39,12 @@ func main() {
 		}
 	}
 
+	/* fmt.Print("a: ")
+	fmt.Println(a)
+
+	fmt.Print("b: ")
+	fmt.Println(b) */
+
 	begin := time.Now()
 
 	//////////////////////////////////////////////
@@ -46,10 +52,19 @@ func main() {
 	// (without using numeric computation librarlies like gonum)
 	//////////////////////////////////////////////
 
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			for k := 0; k < n; k++ {
+				c[i][j] += a[i][k] * b[k][j]
+			}
+		}
+	}
+
 	end := time.Now()
 	fmt.Println("time: ", end.Sub(begin))
 
 	// Print contents of C for debugging.
+	// fmt.Print("c: ")
 	fmt.Println(c)
 
 	total := 0
