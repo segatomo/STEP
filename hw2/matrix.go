@@ -16,6 +16,12 @@ func newMatrix(n int) [][]int {
 	return m
 }
 
+func failOnError(err error) {
+	if err != nil {
+		log.Fatal("Error:", err)
+	}
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("usage: go run matrix.go N")
@@ -85,4 +91,18 @@ func main() {
 	if want != 0 && total != want {
 		fmt.Printf("Wanted sum %v but got %v\n", want, total)
 	}
+
+	var n_str string
+	var time_str string
+	n_str = strconv.Itoa(n)
+	time_str = strconv.Itoa(int(end.Sub(begin)))
+
+	file, err := os.OpenFile("time.txt", os.O_WRONLY|os.O_APPEND, 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	fmt.Fprintln(file, []string{n_str, time_str})
+
 }
