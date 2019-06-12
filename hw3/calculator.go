@@ -44,6 +44,9 @@ type token struct {
 	// If kind is Number, then number is its corresponding numeric
 	// value.
 	number float64
+
+	// 括弧の数
+	bracket int
 }
 
 // TokenKind describes a valid kinds of tokens. This acts kind of
@@ -57,22 +60,39 @@ const (
 	Number tokenKind = iota
 	Plus
 	Minus
+	Times
+	Divide
 )
 
 // Tokenize lexes a given line, breaking it down into its component
 // tokens.
 func tokenize(line string) []token {
-	tokens := []token{token{Plus, 0}} // Start with a dummy '+' token
+	tokens := []token{token{Plus, 0, 0}} // Start with a dummy '+' token
 	index := 0
+	num := 0
+	cnt := 0
 	for index < len(line) {
 		var tok token
 		switch {
 		case unicode.IsDigit(rune(line[index])):
-			tok, index = readNumber(line, index)
+			tok, index = readNumber(line, index, num)
 		case line[index] == '+':
-			tok, index = readPlus(line, index)
+			tok, index = readPlus(line, index, num)
 		case line[index] == '-':
-			tok, index = readMinus(line, index)
+			tok, index = readMinus(line, index, num)
+		case line[index] == '*':
+			tok, index = readTimes(line, index, num)
+		case line[index] == '/':
+			tok, index = readDivide(line, index, num)
+		case line[index] == '(':
+			num++
+			index++
+			cnt++
+			continue
+		case line[index] == '(':
+			num--
+			index++
+			continue
 		default:
 			log.Panicf("invalid character: '%c' at index=%v in %v", line[index], index, line)
 		}
@@ -94,24 +114,36 @@ func evaluate(tokens []token) float64 {
 				answer += tokens[index].number
 			case Minus:
 				answer -= tokens[index].number
+			case Times:
+				answer *= tokens[index].number
+			case Divide:
+				answer /= tokens[index].number
 			default:
 				log.Panicf("invalid syntax for tokens: %v", tokens)
 			}
 		}
-		index += 1
+		index++
 	}
 	return answer
 }
 
-func readPlus(line string, index int) (token, int) {
-	return token{Plus, 0}, index + 1
+func readPlus(line string, index int, num int) (token, int) {
+	return token{Plus, 0, num}, index + 1
 }
 
-func readMinus(line string, index int) (token, int) {
-	return token{Minus, 0}, index + 1
+func readMinus(line string, index int, num int) (token, int) {
+	return token{Minus, 0, num}, index + 1
 }
 
-func readNumber(line string, index int) (token, int) {
+func readTimes(line string, index int, num int) (token, int) {
+	return token{Times, 0, num}, index + 1
+}
+
+func readDivide(line string, index int, num int) (token, int) {
+	return token{Divide, 0, num}, index + 1
+}
+
+func readNumber(line string, index int, num int) (token, int) {
 	number := float64(0)
 	flag := false
 	keta := float64(1)
@@ -129,7 +161,7 @@ DigitLoop:
 			// "break DigitLoop" here means to break from the labeled for loop, rather than the switch statement. https://golang.org/ref/spec#Break_statements
 			break DigitLoop
 		}
-		index += 1
+		index++
 	}
-	return token{Number, number * keta}, index
+	return token{Number, number * keta, num}, index
 }
