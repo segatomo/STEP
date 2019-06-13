@@ -33,6 +33,8 @@ func main() {
 // numerical value (in this case 4).
 func Calculate(line string) float64 {
 	tokens := tokenize(line)
+	tokens = prioritizeOperator(tokens)
+	tokens = preEvaluate(tokens)
 	return evaluate(tokens)
 }
 
@@ -47,6 +49,9 @@ type token struct {
 
 	// 括弧の数
 	bracket int
+
+	// 優先順位
+	priority int
 }
 
 // TokenKind describes a valid kinds of tokens. This acts kind of
@@ -64,10 +69,27 @@ const (
 	Divide
 )
 
+func (k tokenKind) String() string {
+	switch k {
+	case Number:
+		return "Number"
+	case Plus:
+		return "+"
+	case Minus:
+		return "-"
+	case Times:
+		return "*"
+	case Divide:
+		return "/"
+	default:
+		return "???"
+	}
+}
+
 // Tokenize lexes a given line, breaking it down into its component
 // tokens.
 func tokenize(line string) []token {
-	tokens := []token{token{Plus, 0, 0}} // Start with a dummy '+' token
+	tokens := []token{token{Plus, 0, 0, 0}} // Start with a dummy '+' token
 	index := 0
 	num := 0
 	cnt := 0
@@ -89,7 +111,7 @@ func tokenize(line string) []token {
 			index++
 			cnt++
 			continue
-		case line[index] == '(':
+		case line[index] == ')':
 			num--
 			index++
 			continue
@@ -98,15 +120,73 @@ func tokenize(line string) []token {
 		}
 		tokens = append(tokens, tok)
 	}
+	// log.Printf("%#v", tokens)
 	return tokens
+}
+
+// 優先順位をつける
+func prioritizeOperator(tokens []token) []token {
+	index := 0
+	for index < len(tokens)-1 {
+		if tokens[index].kind == Times || tokens[index].kind == Divide {
+			tokens[index-1].priority++
+			tokens[index].priority++
+			tokens[index+1].priority++
+		}
+		index++
+	}
+	return tokens
+}
+
+// ゼロ除算を避ける
+func isZero(i float64) bool {
+	if i == 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+// 優先順位がついたものを先に計算(3*4/2+6/3-7*2 -> 6+2-14 に変換)
+func preEvaluate(tokens []token) []token {
+	index := 0
+	log.Printf("preEvaluate(%#v)", tokens)
+	for index < len(tokens) {
+		log.Printf("for loop on index=%v token=%#v", index, tokens[index])
+		switch tokens[index].kind {
+		case Times:
+			num := tokens[index-1].number * tokens[index+1].number
+			tokens[index-1].number = 0
+			tokens[index].kind = Plus
+			tokens[index+1].number = num
+		case Divide:
+			num := tokens[index-1].number / tokens[index+1].number
+			tokens[index-1].number = 0
+			tokens[index].kind = Plus
+			tokens[index+1].number = num
+		}
+		index++
+	}
+	return tokens
+}
+
+// スライスからi番目の要素を削除する関数
+func unset(tokens []token, i int) []token {
+	if i >= len(tokens) {
+		return tokens
+	}
+	return append(tokens[:i], tokens[i+1:]...)
 }
 
 // Evaluate computes the numeric value expressed by a series of
 // tokens.
+// 足し算引き算だけする
 func evaluate(tokens []token) float64 {
 	answer := float64(0)
 	index := 0
+	// log.Printf("evaluate(%#v)", tokens)
 	for index < len(tokens) {
+		// log.Printf("for loop on index=%v token=%#v", index, tokens[index])
 		switch tokens[index].kind {
 		case Number:
 			switch tokens[index-1].kind {
@@ -114,10 +194,14 @@ func evaluate(tokens []token) float64 {
 				answer += tokens[index].number
 			case Minus:
 				answer -= tokens[index].number
-			case Times:
+			/* case Times:
 				answer *= tokens[index].number
 			case Divide:
-				answer /= tokens[index].number
+				if isZero(tokens[index].number) {
+					log.Panicf("")
+					os.Exit(1)
+				}
+				answer /= tokens[index].number */
 			default:
 				log.Panicf("invalid syntax for tokens: %v", tokens)
 			}
@@ -128,19 +212,19 @@ func evaluate(tokens []token) float64 {
 }
 
 func readPlus(line string, index int, num int) (token, int) {
-	return token{Plus, 0, num}, index + 1
+	return token{Plus, 0, num, 0}, index + 1
 }
 
 func readMinus(line string, index int, num int) (token, int) {
-	return token{Minus, 0, num}, index + 1
+	return token{Minus, 0, num, 0}, index + 1
 }
 
 func readTimes(line string, index int, num int) (token, int) {
-	return token{Times, 0, num}, index + 1
+	return token{Times, 0, num, 0}, index + 1
 }
 
 func readDivide(line string, index int, num int) (token, int) {
-	return token{Divide, 0, num}, index + 1
+	return token{Divide, 0, num, 0}, index + 1
 }
 
 func readNumber(line string, index int, num int) (token, int) {
@@ -163,5 +247,5 @@ DigitLoop:
 		}
 		index++
 	}
-	return token{Number, number * keta, num}, index
+	return token{Number, number * keta, num, 0}, index
 }
