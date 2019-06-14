@@ -147,8 +147,7 @@ func isZero(i float64) bool {
 	}
 }
 
-// 優先順位がついたものを先に計算(3*4/2+6/3-7*2 -> 6+2-14 に変換)
-// timesやdivideを先に計算し新しいtokenを作る
+// timesやdivideを先に計算し新しいtokenのリストを作る(3*4/2+6/3-7*2 -> 6+2-14 に変換)
 func preEvaluate(tokens []token) []token {
 	index := 0
 	newTokens := []token{}
