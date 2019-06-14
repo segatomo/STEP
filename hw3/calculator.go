@@ -12,12 +12,15 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"go/token"
+	"go/types"
 	"log"
 	"os"
 	"unicode"
 )
 
 func main() {
+	runTest()
 	input := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("> ")
@@ -29,6 +32,37 @@ func main() {
 	}
 }
 
+func test(line string) {
+	fmt.Printf("Test: %v", line)
+	fmt.Println()
+	fset := token.NewFileSet()
+	tokens := tokenize(line)
+	tokens = preEvaluate(tokens)
+	actualAnswer := evaluate(tokens)
+	correctAns, err := types.Eval(fset, nil, token.NoPos, line)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Actual answer: %#v", actualAnswer)
+	fmt.Println()
+	fmt.Printf("Correct answer: %#v", correctAns.Value)
+	fmt.Println()
+	fmt.Println("---------")
+
+}
+
+func runTest() {
+	fmt.Println("==== Test started! ====")
+	test("1+2")
+	test("1.0+2.1-3")
+	test("3*4/2+6/3-7*2")
+	test("2+3.0*4/2+6/3-7*2")
+	test("123+456*789-10/1112")
+	test("10/9/8/7/6")
+	test("2019*06/13")
+	fmt.Println("==== Test finished! ===")
+}
+
 // Calculate turns a string like "1 + 3" into its corresponding
 // numerical value (in this case 4).
 func Calculate(line string) float64 {
@@ -38,7 +72,7 @@ func Calculate(line string) float64 {
 	return evaluate(tokens)
 }
 
-type token struct {
+type customToken struct {
 	// Specifies the type of the token. I'm using the word "kind" here
 	// rather than "type" because type is a reserved word in Go.
 	kind tokenKind
@@ -88,13 +122,13 @@ func (k tokenKind) String() string {
 
 // Tokenize lexes a given line, breaking it down into its component
 // tokens.
-func tokenize(line string) []token {
-	tokens := []token{token{Plus, 0, 0, 0}} // Start with a dummy '+' token
+func tokenize(line string) []customToken {
+	tokens := []customToken{customToken{Plus, 0, 0, 0}} // Start with a dummy '+' token
 	index := 0
 	num := 0
 	cnt := 0
 	for index < len(line) {
-		var tok token
+		var tok customToken
 		switch {
 		case unicode.IsDigit(rune(line[index])):
 			tok, index = readNumber(line, index, num)
@@ -125,7 +159,7 @@ func tokenize(line string) []token {
 }
 
 // 優先順位をつける
-func prioritizeOperator(tokens []token) []token {
+func prioritizeOperator(tokens []customToken) []customToken {
 	index := 0
 	for index < len(tokens)-1 {
 		if tokens[index].kind == Times || tokens[index].kind == Divide {
@@ -142,15 +176,14 @@ func prioritizeOperator(tokens []token) []token {
 func isZero(i float64) bool {
 	if i == 0 {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 // timesやdivideを先に計算し新しいtokenのリストを作る(3*4/2+6/3-7*2 -> 6+2-14 に変換)
-func preEvaluate(tokens []token) []token {
+func preEvaluate(tokens []customToken) []customToken {
 	index := 0
-	newTokens := []token{}
+	newTokens := []customToken{}
 	// log.Printf("preEvaluate(%#v)", tokens)
 	for index < len(tokens) {
 		// log.Printf("for loop on index=%v token=%#v", index, tokens[index])
@@ -170,7 +203,7 @@ func preEvaluate(tokens []token) []token {
 }
 
 // スライスからi番目の要素を削除する関数
-func unset(tokens []token, i int) []token {
+func unset(tokens []customToken, i int) []customToken {
 	if i >= len(tokens) {
 		return tokens
 	}
@@ -180,7 +213,7 @@ func unset(tokens []token, i int) []token {
 // Evaluate computes the numeric value expressed by a series of
 // tokens.
 // 足し算引き算だけする
-func evaluate(tokens []token) float64 {
+func evaluate(tokens []customToken) float64 {
 	answer := float64(0)
 	index := 0
 	// log.Printf("evaluate(%#v)", tokens)
@@ -193,14 +226,14 @@ func evaluate(tokens []token) float64 {
 				answer += tokens[index].number
 			case Minus:
 				answer -= tokens[index].number
-			/* case Times:
-				answer *= tokens[index].number
-			case Divide:
-				if isZero(tokens[index].number) {
-					log.Panicf("")
-					os.Exit(1)
-				}
-				answer /= tokens[index].number */
+			// case Times:
+			// 	answer *= tokens[index].number
+			// case Divide:
+			// 	if isZero(tokens[index].number) {
+			// 		log.Panicf("")
+			// 		os.Exit(1)
+			// 	}
+			// 	answer /= tokens[index].number
 			default:
 				log.Panicf("invalid syntax for tokens: %v", tokens)
 			}
@@ -210,23 +243,23 @@ func evaluate(tokens []token) float64 {
 	return answer
 }
 
-func readPlus(line string, index int, num int) (token, int) {
-	return token{Plus, 0, num, 0}, index + 1
+func readPlus(line string, index int, num int) (customToken, int) {
+	return customToken{Plus, 0, num, 0}, index + 1
 }
 
-func readMinus(line string, index int, num int) (token, int) {
-	return token{Minus, 0, num, 0}, index + 1
+func readMinus(line string, index int, num int) (customToken, int) {
+	return customToken{Minus, 0, num, 0}, index + 1
 }
 
-func readTimes(line string, index int, num int) (token, int) {
-	return token{Times, 0, num, 0}, index + 1
+func readTimes(line string, index int, num int) (customToken, int) {
+	return customToken{Times, 0, num, 0}, index + 1
 }
 
-func readDivide(line string, index int, num int) (token, int) {
-	return token{Divide, 0, num, 0}, index + 1
+func readDivide(line string, index int, num int) (customToken, int) {
+	return customToken{Divide, 0, num, 0}, index + 1
 }
 
-func readNumber(line string, index int, num int) (token, int) {
+func readNumber(line string, index int, num int) (customToken, int) {
 	number := float64(0)
 	flag := false
 	keta := float64(1)
@@ -246,5 +279,5 @@ DigitLoop:
 		}
 		index++
 	}
-	return token{Number, number * keta, num, 0}, index
+	return customToken{Number, number * keta, num, 0}, index
 }
