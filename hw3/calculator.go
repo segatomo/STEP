@@ -148,26 +148,26 @@ func isZero(i float64) bool {
 }
 
 // 優先順位がついたものを先に計算(3*4/2+6/3-7*2 -> 6+2-14 に変換)
+// timesやdivideを先に計算し新しいtokenを作る
 func preEvaluate(tokens []token) []token {
 	index := 0
-	log.Printf("preEvaluate(%#v)", tokens)
+	newTokens := []token{}
+	// log.Printf("preEvaluate(%#v)", tokens)
 	for index < len(tokens) {
-		log.Printf("for loop on index=%v token=%#v", index, tokens[index])
+		// log.Printf("for loop on index=%v token=%#v", index, tokens[index])
 		switch tokens[index].kind {
 		case Times:
-			num := tokens[index-1].number * tokens[index+1].number
-			tokens[index-1].number = 0
-			tokens[index].kind = Plus
-			tokens[index+1].number = num
+			newTokens[len(newTokens)-1].number *= tokens[index+1].number
+			index++
 		case Divide:
-			num := tokens[index-1].number / tokens[index+1].number
-			tokens[index-1].number = 0
-			tokens[index].kind = Plus
-			tokens[index+1].number = num
+			newTokens[len(newTokens)-1].number /= tokens[index+1].number
+			index++
+		default:
+			newTokens = append(newTokens, tokens[index])
 		}
 		index++
 	}
-	return tokens
+	return newTokens
 }
 
 // スライスからi番目の要素を削除する関数
