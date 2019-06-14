@@ -33,8 +33,7 @@ func main() {
 }
 
 func test(line string) {
-	fmt.Printf("Test: %v", line)
-	fmt.Println()
+	fmt.Printf("Test: %v\n", line)
 	fset := token.NewFileSet()
 	tokens := tokenize(line)
 	tokens = preEvaluate(tokens)
@@ -43,17 +42,24 @@ func test(line string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Actual answer: %#v", actualAnswer)
-	fmt.Println()
-	fmt.Printf("Correct answer: %#v", correctAns.Value)
-	fmt.Println()
+	fmt.Printf("Actual answer: %#v\n", actualAnswer)
+	fmt.Printf("Correct answer: %#v\n", correctAns.Value)
 	fmt.Println("---------")
 
 }
 
 func runTest() {
 	fmt.Println("==== Test started! ====")
+	test("1")
+	test("1.0")
 	test("1+2")
+	test("1-2")
+	test("1*2")
+	test("1/2")
+	test("1.0+2.0")
+	test("2.0-1.9")
+	test("2.0*0.9")
+	test("2.0/1.9")
 	test("1.0+2.1-3")
 	test("3*4/2+6/3-7*2")
 	test("2+3.0*4/2+6/3-7*2")
