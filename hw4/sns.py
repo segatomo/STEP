@@ -1,5 +1,5 @@
-# coding: utf-8
 import read_txt
+import itertools
 
 
 def find_name(name):
@@ -20,22 +20,19 @@ def bfs(graph, start, end):
     end: 探したい人のid(int)
     """
     searched_list = []  # 探索済みリスト
-    queue = [start]  # 探索候補スタック
+    data = {start: []}
+    queue = [start]  # 探索候補
     step = 0  # ステップ数
     while queue:
         current = queue.pop(0)  # 現在位置
-        if end in queue:
-            searched_list.append(current)
-            return step
+        if current == end:
+            return len(data[current])
         if current not in searched_list:
             searched_list.append(current)
             queue += graph[current]
-            step += 1
-        else:
-            step -= 1            
-        
-    return step
-
+            for id in graph[current]:
+                if not id in data.keys():
+                    data[id] = data[current] + [current]
 
 if __name__ == "__main__":
     start_name = input('Enter your account name: ')
@@ -45,7 +42,7 @@ if __name__ == "__main__":
     end = find_name(end_name)
 
     if start and end:
-        print('ok')
+        print('OK.')
     else:
         print('Not found…')
         exit()
@@ -53,7 +50,7 @@ if __name__ == "__main__":
     link_data = read_txt.read_links('links.txt')
     graph = read_txt.graph(link_data)
     step = bfs(graph, start, end)
-    
+
     if step == 1:
         print('%s need to follow the link to reach out to %s %d step.' % (start_name, end_name, step))
     else:
