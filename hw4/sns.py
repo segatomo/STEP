@@ -40,20 +40,21 @@ if __name__ == "__main__":
     start = find_name(start_name)
     end = find_name(end_name)
 
-    if start and end:
-        print('OK.')
-    else:
+    if start is None or end is None:
         print('Not found…')
         exit()
+    else:
+        print('OK.')
+        
 
     link_data = read_txt.read_links('links.txt')
     graph = read_txt.graph(link_data)
     step = bfs(graph, start, end)
 
     if step == 1:
-        print('%s need to follow the link to reach out to %s %d step.' % (start_name, end_name, step))
+        print('%s need %d step to reach out to %s.' % (start_name, step, end_name))
     elif step != None:
-        print('%s need to follow the link to reach out to %s %d steps.' % (start_name, end_name, step))
+        print('%s need %d steps to reach out to %s.' % (start_name, step, end_name))
     else: 
         print('%s cannot reach out to %s' % (start_name, end_name))
         
