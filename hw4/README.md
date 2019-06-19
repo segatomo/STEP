@@ -10,5 +10,9 @@
 #### 結果
 <img src="https://user-images.githubusercontent.com/29967880/59767126-92828b00-92dc-11e9-8278-2446df199b11.png"  width=50%>
 
+
+#### その他
+SNSのフォロー・フォロワー関係を可視化
+
 ### Homework2
 
