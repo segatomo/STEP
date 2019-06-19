@@ -1,6 +1,4 @@
 import read_txt
-import itertools
-
 
 def find_name(name):
     """
@@ -34,6 +32,7 @@ def bfs(graph, start, end):
                 if not id in data.keys():
                     data[id] = data[current] + [current]
 
+
 if __name__ == "__main__":
     start_name = input('Enter your account name: ')
     end_name = input('Who is the person you are looking for?: ')
@@ -53,7 +52,8 @@ if __name__ == "__main__":
 
     if step == 1:
         print('%s need to follow the link to reach out to %s %d step.' % (start_name, end_name, step))
-    else:
+    elif step != None:
         print('%s need to follow the link to reach out to %s %d steps.' % (start_name, end_name, step))
-
+    else: 
+        print('%s cannot reach out to %s' % (start_name, end_name))
         
