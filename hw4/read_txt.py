@@ -16,3 +16,18 @@ def read_links(filename):
             if line.split():
                 link_data.append({ "from": int(line.split()[0]), "to": int(line.split()[1]) })
     return link_data
+
+
+def graph(link_data):
+    """
+    linkを整理する関数
+    """
+    graph = {}
+    to = [link_data[0]['to']]
+    for i in range(1, len(link_data)):
+        if link_data[i-1]['from'] == link_data[i]['from']:
+            to.append(link_data[i]['to'])
+        else:
+            to = [link_data[i]['to']]
+        graph[link_data[i]['from']] = to
+    return graph
