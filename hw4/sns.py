@@ -33,20 +33,22 @@ def bfs(graph, start, end):
                     data[id] = data[current] + [current]
 
 
-if __name__ == "__main__":
+def main():
     start_name = input('Enter your account name: ')
     end_name = input('Who is the person you are looking for?: ')
 
     start = find_name(start_name)
     end = find_name(end_name)
 
-    if start is None or end is None:
-        print('Not found…')
+    if start is None:
+        print('%s was not found…' % start_name)
+        exit()
+    elif end is None:
+        print('%s was not found…' % end_name)
         exit()
     else:
         print('OK.')
         
-
     link_data = read_txt.read_links('links.txt')
     graph = read_txt.graph(link_data)
     step = bfs(graph, start, end)
@@ -57,4 +59,7 @@ if __name__ == "__main__":
         print('%s need %d steps to reach out to %s.' % (start_name, step, end_name))
     else: 
         print('%s cannot reach out to %s' % (start_name, end_name))
-        
+
+
+if __name__ == "__main__":
+    main()
