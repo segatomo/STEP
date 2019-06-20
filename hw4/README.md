@@ -12,7 +12,7 @@
 
 
 #### その他
-SNSのフォロー・フォロワー関係を可視化
+SNSのフォロー・フォロワー関係を可視化(visualize_sns.ipynb)
 
 ### Homework2
 
