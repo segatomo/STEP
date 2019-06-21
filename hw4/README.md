@@ -18,5 +18,6 @@
 *visualize_sns.ipynb*
 - SNSのフォロー・フォロワー関係を可視化
 
+<img src="https://user-images.githubusercontent.com/29967880/59902978-ab08b780-943a-11e9-8471-3ad2f3e060f1.png" width=50%>
 ### Homework2
 
